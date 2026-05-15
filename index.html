@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Porchfest · Montclair</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#0e0e12" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Porchfest" />
+<meta name="description" content="A native-feeling guide to Montclair Porchfest — live music, nearby porches, and what's playing right now." />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg" />
+<link rel="apple-touch-icon" href="assets/icon-180.png" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<link rel="stylesheet" href="assets/styles.css" />
+</head>
+<body>
+<div id="app">
+
+  <!-- Top status bar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo-dot" aria-hidden="true"></div>
+      <div>
+        <div class="topbar-title">Porchfest</div>
+        <div class="topbar-sub" id="topbarSub">Montclair · Sat May 16</div>
+      </div>
+    </div>
+    <button id="locBtn" class="icon-btn" aria-label="Use my location" title="Use my location">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+    </button>
+  </header>
+
+  <!-- Views -->
+  <main class="views">
+
+    <!-- NOW -->
+    <section class="view view-now" data-view="now">
+      <div class="hero" id="hero">
+        <div class="hero-status" id="heroStatus">Loading…</div>
+        <div class="hero-title" id="heroTitle">Porchfest</div>
+        <div class="hero-sub" id="heroSub"></div>
+        <div class="hero-clock">
+          <span class="dot" id="liveDot"></span>
+          <span id="clockText">--:--</span>
+          <button id="demoBtn" class="ghost-btn" aria-label="Demo time">Demo time</button>
+        </div>
+        <div class="hero-demo hidden" id="demoBar">
+          <label for="demoSlider">Simulated time</label>
+          <input id="demoSlider" type="range" min="690" max="1080" step="5" value="780" />
+          <span id="demoTime">1:00 PM</span>
+          <button id="demoReset" class="link-btn">Use real time</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Playing now near you</h2>
+          <span class="pill" id="nowCount">0</span>
+        </div>
+        <div class="cards" id="nowCards"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head">
+          <h2>Up next</h2>
+          <span class="pill" id="nextCount">0</span>
+        </div>
+        <div class="cards" id="nextCards"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><h2>The finale</h2></div>
+        <div class="finale-card" id="finaleCard"></div>
+      </div>
+
+      <div class="footnote">
+        Data is a seed dataset modeled on the public Porchfest info. Tap any show to save it.
+      </div>
+    </section>
+
+    <!-- SCHEDULE -->
+    <section class="view view-sched hidden" data-view="sched">
+      <div class="filters">
+        <div class="search">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+          <input id="searchInput" type="search" placeholder="Search artists, genres, streets…" autocomplete="off" />
+        </div>
+        <div class="chips" id="genreChips"></div>
+      </div>
+      <div id="scheduleList" class="schedule-list"></div>
+    </section>
+
+    <!-- MAP -->
+    <section class="view view-map hidden" data-view="map">
+      <div id="map"></div>
+      <div class="map-overlay">
+        <div class="map-legend">
+          <span><i class="dot live"></i>Now</span>
+          <span><i class="dot up"></i>Soon</span>
+          <span><i class="dot past"></i>Done</span>
+        </div>
+        <button id="recenterBtn" class="round-btn" aria-label="Recenter">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- SAVED -->
+    <section class="view view-saved hidden" data-view="saved">
+      <div id="savedList" class="schedule-list"></div>
+    </section>
+
+  </main>
+
+  <!-- Bottom Tab Bar -->
+  <nav class="tabbar" role="tablist">
+    <button class="tab active" data-tab="now" role="tab" aria-selected="true">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+      <span>Now</span>
+    </button>
+    <button class="tab" data-tab="sched" role="tab">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 9h18M8 3v4M16 3v4"/></svg>
+      <span>Schedule</span>
+    </button>
+    <button class="tab" data-tab="map" role="tab">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4l-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg>
+      <span>Map</span>
+    </button>
+    <button class="tab" data-tab="saved" role="tab">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+      <span>Saved</span>
+    </button>
+  </nav>
+
+  <!-- Bottom sheet for show details -->
+  <div class="sheet-backdrop hidden" id="sheetBackdrop"></div>
+  <div class="sheet hidden" id="sheet" role="dialog" aria-modal="true">
+    <div class="sheet-grab"></div>
+    <div class="sheet-body" id="sheetBody"></div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="assets/data.js"></script>
+<script src="assets/app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "Montclair Porchfest",
+  "short_name": "Porchfest",
+  "description": "Your guide to Montclair Porchfest — live music, nearby porches, and what's on now.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0c0d11",
+  "theme_color": "#0c0d11",
+  "icons": [
+    { "src": "assets/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
