@@ -135,8 +135,54 @@
     });
   }
 
+  function watchPositionOnce(options) {
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const watchId = navigator.geolocation.watchPosition(
+        pos => {
+          if (settled) return;
+          settled = true;
+          navigator.geolocation.clearWatch(watchId);
+          resolve(pos);
+        },
+        err => {
+          if (settled) return;
+          settled = true;
+          navigator.geolocation.clearWatch(watchId);
+          reject(err);
+        },
+        options
+      );
+    });
+  }
+
   function isPermissionDenied(err) {
     return err?.code === 1; // GeolocationPositionError.PERMISSION_DENIED
+  }
+
+  function isSafari() {
+    return /^((?!chrome|android|crios|fxios|edgios).)*safari/i.test(navigator.userAgent);
+  }
+
+  function isStandaloneWebApp() {
+    return window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+  }
+
+  function locationBlockedMessage() {
+    const host = location.hostname;
+    const browserName = isStandaloneWebApp() ? 'this saved web app' : 'Safari';
+    if (isSafari() || isStandaloneWebApp()) {
+      return (
+        `${browserName} denied location for <strong>${host}</strong> without showing a prompt. ` +
+        `If this site is already set to Allow, check the device-level setting too: ` +
+        `<strong>Settings → Privacy & Security → Location Services → Safari Websites</strong> ` +
+        `on iPhone/iPad, or <strong>System Settings → Privacy & Security → Location Services → Safari</strong> on Mac. ` +
+        `Then fully close and reopen the site.`
+      );
+    }
+    return (
+      `Location is blocked for <strong>${host}</strong>. Set Location to <strong>Allow</strong> for this exact site, then try again.`
+    );
   }
 
   function updateUserMarker() {
@@ -182,16 +228,17 @@
         .catch(err => {
           if (isPermissionDenied(err)) throw err;
           return getPosition({ enableHighAccuracy: false, timeout: 20000, maximumAge: 300000 });
+        })
+        .catch(err => {
+          if (!isPermissionDenied(err)) throw err;
+          return watchPositionOnce({ enableHighAccuracy: false, timeout: 20000, maximumAge: 300000 });
         });
       setUserPosition(pos);
     } catch (err) {
       locBtn.classList.remove('active');
       if (isPermissionDenied(err)) {
         locBtn.classList.add('denied');
-        showToast(
-          "Location is blocked for this site. In Safari, set Location to <strong>Allow</strong> for this site " +
-          "and make sure Safari itself can use Location Services, then try again."
-        );
+        showToast(locationBlockedMessage());
       } else if (err.code === 2) {
         showToast("Your device can't determine its location right now. Try again outside or with Wi-Fi on.");
       } else if (err.code === 3) {
