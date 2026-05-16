@@ -40,7 +40,12 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-html, body { margin: 0; padding: 0; height: 100%; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  touch-action: manipulation;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+}
 body {
   font: 15px/1.45 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
   background: var(--bg);
@@ -51,6 +56,13 @@ body {
 button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; }
 input { font: inherit; color: inherit; }
 a { color: inherit; }
+button:focus { outline: none; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible {
+  outline: 2px solid var(--brand-1);
+  outline-offset: 2px;
+}
 
 #app {
   position: fixed; inset: 0;
@@ -94,7 +106,7 @@ a { color: inherit; }
   left: 12px;
   right: 12px;
   bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
-  z-index: 1000;
+  z-index: 2200;
   padding: 12px 40px 12px 14px;
   background: var(--surface);
   color: var(--text);
@@ -103,6 +115,8 @@ a { color: inherit; }
   box-shadow: 0 12px 32px rgba(0,0,0,0.35);
   font-size: 14px;
   line-height: 1.4;
+  max-height: min(45vh, 280px);
+  overflow-y: auto;
   animation: loc-toast-in .2s ease-out;
 }
 .loc-toast strong { font-weight: 600; }
@@ -420,12 +434,8 @@ a { color: inherit; }
   box-shadow: 0 2px 6px rgba(0,0,0,.4);
   background: var(--past);
 }
-.porch-pin.live { background: var(--live); animation: pinPulse 1.4s infinite; }
+.porch-pin.live { background: var(--live); }
 .porch-pin.up { background: var(--soon); }
-@keyframes pinPulse {
-  0%,100% { box-shadow: 0 0 0 0 rgba(255,59,48,.55), 0 2px 6px rgba(0,0,0,.4); }
-  60%     { box-shadow: 0 0 0 12px rgba(255,59,48,0), 0 2px 6px rgba(0,0,0,.4); }
-}
 .user-pin {
   width: 16px; height: 16px; border-radius: 50%;
   background: #2d8eff; border: 3px solid #fff;
@@ -456,18 +466,16 @@ a { color: inherit; }
 .tab svg { stroke: currentColor; }
 .tab:active { transform: scale(.95); }
 .tab.active {
-  color: transparent;
-  background: linear-gradient(135deg, #ff7a3d, #ff3d77, #b14bff);
-  -webkit-background-clip: text;
-  background-clip: text;
+  color: var(--brand-2);
+  background: color-mix(in srgb, var(--brand-2) 12%, transparent);
 }
-.tab.active svg { stroke: url(#tabgrad); color: #ff3d77; }
+.tab.active svg { color: var(--brand-2); }
 
 /* ---------- Bottom Sheet ---------- */
 .sheet-backdrop {
   position: fixed; inset: 0;
   background: rgba(0,0,0,.4);
-  z-index: 20;
+  z-index: 2000;
   animation: fade .2s ease;
 }
 .sheet {
@@ -475,11 +483,25 @@ a { color: inherit; }
   background: var(--bg-2);
   border-radius: 22px 22px 0 0;
   padding: 12px 18px calc(28px + var(--safe-bot));
-  z-index: 21;
+  z-index: 2001;
   box-shadow: 0 -10px 40px rgba(0,0,0,.4);
   max-height: 78vh; overflow-y: auto;
   animation: slideUp .22s cubic-bezier(.2,.7,.2,1);
 }
+.sheet-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--muted);
+  border: 1px solid var(--line);
+}
+.sheet-close:active { background: var(--surface-2); color: var(--text); }
 .sheet-grab {
   width: 44px; height: 4px; border-radius: 4px;
   background: var(--line);
@@ -504,6 +526,9 @@ a { color: inherit; }
   padding: 13px; border-radius: 14px;
   background: var(--surface); border: 1px solid var(--line);
   font-weight: 600; font-size: 14px;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.2;
 }
 .btn.primary { background: var(--brand-grad); color: #fff; border-color: transparent; }
 .sheet .also {
@@ -514,3 +539,11 @@ a { color: inherit; }
 .also-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; background: var(--surface); border-radius: 12px; }
 .also-row .a { font-weight: 600; }
 .also-row .t { font-size: 12px; color: var(--muted); }
+
+@media (max-width: 380px) {
+  .hero { padding: 18px; }
+  .hero-demo { grid-template-columns: 1fr auto; }
+  .hero-demo label { grid-column: 1 / -1; }
+  .sheet .actions { grid-template-columns: 1fr; }
+  .map-legend { gap: 8px; padding: 8px 10px; }
+}

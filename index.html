@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <title>Porchfest · Montclair</title>
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#0e0e12" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -57,7 +57,7 @@
 
       <div class="section">
         <div class="section-head">
-          <h2>Playing now near you</h2>
+          <h2 id="nowTitle">Playing now</h2>
           <span class="pill" id="nowCount">0</span>
         </div>
         <div class="cards" id="nowCards"></div>
@@ -138,6 +138,9 @@
   <!-- Bottom sheet for show details -->
   <div class="sheet-backdrop hidden" id="sheetBackdrop"></div>
   <div class="sheet hidden" id="sheet" role="dialog" aria-modal="true">
+    <button id="sheetClose" class="sheet-close" aria-label="Close details">
+      <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
     <div class="sheet-grab"></div>
     <div class="sheet-body" id="sheetBody"></div>
   </div>

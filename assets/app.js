@@ -338,6 +338,7 @@
   // ---------- Now view ----------
   const nowCards = document.getElementById('nowCards');
   const nextCards = document.getElementById('nextCards');
+  const nowTitle = document.getElementById('nowTitle');
   const nowCount = document.getElementById('nowCount');
   const nextCount = document.getElementById('nextCount');
   const finaleCard = document.getElementById('finaleCard');
@@ -351,6 +352,7 @@
     sortByDistance(live);
     sortByDistance(next);
 
+    nowTitle.textContent = state.userPos ? 'Playing now near you' : 'Playing now';
     nowCount.textContent = live.length;
     nextCount.textContent = next.length;
     nowCards.innerHTML = live.length
@@ -406,7 +408,7 @@
         </div>
         <div class="card-row">
           ${distChip}
-          <button class="card-save ${saved ? 'on' : ''}" data-save="${a.id}" aria-label="Save">
+          <button class="card-save ${saved ? 'on' : ''}" data-save="${a.id}" aria-label="${saved ? 'Unsave' : 'Save'} ${escape(a.artist)}">
             <svg viewBox="0 0 24 24" width="18" height="18" fill="${saved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
           </button>
         </div>
@@ -508,7 +510,7 @@
             ${d != null ? `<span class="sep">·</span><span>${fmtDist(d)}</span>` : `<span class="sep">·</span><span>${escape(a.porch.area)}</span>`}
           </div>
         </div>
-        <button class="row-save ${saved ? 'on' : ''}" data-save="${a.id}" aria-label="Save">
+        <button class="row-save ${saved ? 'on' : ''}" data-save="${a.id}" aria-label="${saved ? 'Unsave' : 'Save'} ${escape(a.artist)}">
           <svg viewBox="0 0 24 24" width="16" height="16" fill="${saved ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
         </button>
       </div>
@@ -519,7 +521,8 @@
   const savedList = document.getElementById('savedList');
   function renderSaved() {
     const now = effectiveNow();
-    const items = SCHEDULE.filter(a => state.saved.has(a.id));
+    const items = SCHEDULE.filter(a => state.saved.has(a.id))
+                          .sort((a, b) => a.start - b.start || a.artist.localeCompare(b.artist));
     if (!items.length) {
       savedList.innerHTML = `
         <div class="empty" style="margin: 30px 16px;">
@@ -580,9 +583,14 @@
 
   // ---------- Bottom sheet ----------
   const sheet = document.getElementById('sheet');
+  const sheetClose = document.getElementById('sheetClose');
   const sheetBackdrop = document.getElementById('sheetBackdrop');
   const sheetBody = document.getElementById('sheetBody');
   sheetBackdrop.addEventListener('click', closeSheet);
+  sheetClose.addEventListener('click', closeSheet);
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeSheet();
+  });
   function openSheet(actId) {
     const a = SCHEDULE.find(x => x.id === actId);
     if (!a) return;
