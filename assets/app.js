@@ -117,12 +117,52 @@
 
   // ---------- Geolocation ----------
   const locBtn = document.getElementById('locBtn');
-  locBtn.addEventListener('click', requestLocation);
-  function requestLocation() {
-    if (!navigator.geolocation) return alert("Location isn't available in this browser.");
+  const locToast = document.createElement('div');
+  locToast.className = 'loc-toast';
+  locToast.hidden = true;
+  document.body.appendChild(locToast);
+
+  function showToast(html, dismissable = true) {
+    locToast.innerHTML = html + (dismissable ? '<button class="loc-toast-x" aria-label="Dismiss">×</button>' : '');
+    locToast.hidden = false;
+    const x = locToast.querySelector('.loc-toast-x');
+    if (x) x.addEventListener('click', () => { locToast.hidden = true; });
+  }
+
+  async function requestLocation() {
+    if (!navigator.geolocation) {
+      showToast("Location isn't available in this browser.");
+      return;
+    }
+    if (!window.isSecureContext) {
+      showToast("Location needs a secure (https://) connection.");
+      return;
+    }
+
+    // Check the current permission so we can give a useful message when
+    // the browser has the site permanently blocked and won't reprompt.
+    let permState = null;
+    if (navigator.permissions?.query) {
+      try {
+        const p = await navigator.permissions.query({ name: 'geolocation' });
+        permState = p.state;
+      } catch { /* not supported — fall through */ }
+    }
+    if (permState === 'denied') {
+      locBtn.classList.remove('active');
+      locBtn.classList.add('denied');
+      showToast(
+        "Location is blocked for this site. Tap the lock or info icon in your browser's address bar, " +
+        "set Location to <strong>Allow</strong>, then reload."
+      );
+      return;
+    }
+
+    locBtn.classList.remove('denied');
     locBtn.classList.add('active');
     navigator.geolocation.getCurrentPosition(
       pos => {
+        locToast.hidden = true;
         state.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         renderAll();
         if (state.map) {
@@ -140,14 +180,22 @@
         locBtn.classList.remove('active');
         if (err.code === err.PERMISSION_DENIED) {
           locBtn.classList.add('denied');
-          locBtn.title = "Location blocked — enable it in your browser settings to see nearby porches.";
+          showToast(
+            "Location is blocked for this site. Tap the lock or info icon in your browser's address bar, " +
+            "set Location to <strong>Allow</strong>, then reload."
+          );
+        } else if (err.code === err.POSITION_UNAVAILABLE) {
+          showToast("Your device can't determine its location right now. Try again outside or with Wi-Fi on.");
+        } else if (err.code === err.TIMEOUT) {
+          showToast("Location timed out. Try again from somewhere with a clearer GPS signal.");
         } else {
-          locBtn.title = "Couldn't get your location: " + err.message;
+          showToast("Couldn't get your location: " + err.message);
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
   }
+  locBtn.addEventListener('click', requestLocation);
 
   // ---------- Hero / clock ----------
   const heroStatus = document.getElementById('heroStatus');

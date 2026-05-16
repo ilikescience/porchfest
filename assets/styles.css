@@ -89,6 +89,40 @@ a { color: inherit; }
 .icon-btn.active { color: #fff; background: var(--brand-grad); border-color: transparent; }
 .icon-btn.denied { color: var(--muted); opacity: 0.5; }
 
+.loc-toast {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 76px);
+  z-index: 1000;
+  padding: 12px 40px 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border, rgba(255,255,255,0.12));
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+  font-size: 14px;
+  line-height: 1.4;
+  animation: loc-toast-in .2s ease-out;
+}
+.loc-toast strong { font-weight: 600; }
+.loc-toast-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.loc-toast-x:active { background: var(--surface-2); }
+@keyframes loc-toast-in { from { transform: translateY(8px); opacity: 0; } to { transform: none; opacity: 1; } }
+
 /* ---------- Views ---------- */
 .views {
   position: relative;
