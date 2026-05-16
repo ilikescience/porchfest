@@ -1,5 +1,5 @@
 // Tiny app-shell service worker for offline use.
-const CACHE = 'porchfest-v6';
+const CACHE = 'porchfest-v7';
 const SHELL = [
   './',
   './index.html',

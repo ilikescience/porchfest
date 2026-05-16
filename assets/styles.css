@@ -22,8 +22,8 @@
   --radius-lg: 22px;
   --tap: 44px;
 
-  --safe-top: env(safe-area-inset-top);
-  --safe-bot: env(safe-area-inset-bottom);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bot: env(safe-area-inset-bottom, 0px);
 }
 
 @media (prefers-color-scheme: light) {
@@ -67,8 +67,9 @@ input:focus-visible {
 #app {
   position: fixed; inset: 0;
   display: grid;
-  grid-template-rows: auto 1fr auto;
+  grid-template-rows: auto 1fr;
   background: var(--bg);
+  min-height: 100dvh;
 }
 
 /* ---------- Top bar ---------- */
@@ -444,9 +445,13 @@ input:focus-visible {
 
 /* ---------- Tab bar ---------- */
 .tabbar {
-  position: relative; z-index: 6;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1100;
   display: grid; grid-template-columns: repeat(4, 1fr);
-  padding: 8px 8px calc(8px + var(--safe-bot));
+  padding: 8px 8px max(8px, var(--safe-bot));
   background: rgba(12,13,17,0.86);
   border-top: 1px solid var(--line);
   backdrop-filter: blur(20px) saturate(150%);
