@@ -289,11 +289,6 @@
   const clockText = document.getElementById('clockText');
   const liveDot = document.getElementById('liveDot');
   const topbarSub = document.getElementById('topbarSub');
-  const demoBtn = document.getElementById('demoBtn');
-  const demoBar = document.getElementById('demoBar');
-  const demoSlider = document.getElementById('demoSlider');
-  const demoTimeEl = document.getElementById('demoTime');
-  const demoReset = document.getElementById('demoReset');
 
   function isFestivalDay() {
     const today = new Date().toISOString().slice(0,10);
@@ -303,7 +298,7 @@
   function renderHero() {
     const now = effectiveNow();
     const isLive = now >= FESTIVAL.startMinutes && now < FESTIVAL.endMinutes;
-    const today = isFestivalDay() || state.demo != null;
+    const today = isFestivalDay();
     const startLabel = fmtTimeShort(FESTIVAL.startMinutes);
     const endLabel = fmtTimeShort(FESTIVAL.endMinutes);
 
@@ -332,38 +327,8 @@
     topbarSub.textContent = `Montclair · ${FESTIVAL.dateLabel.replace(/^\w+, /, '')}`;
   }
 
-  demoBtn.addEventListener('click', () => {
-    demoBar.classList.toggle('hidden');
-    if (state.demo == null) {
-      // Default to mid-festival
-      const def = 13 * 60; // 1:00 PM
-      demoSlider.value = def;
-      setDemo(def);
-    }
-    onDemoChange();
-  });
-  demoSlider.addEventListener('input', () => {
-    setDemo(parseInt(demoSlider.value, 10));
-    onDemoChange();
-  });
-  demoReset.addEventListener('click', () => {
-    setDemo(null);
-    demoBar.classList.add('hidden');
-    onDemoChange();
-  });
-  function onDemoChange() {
-    if (state.demo != null) {
-      demoSlider.value = state.demo;
-      demoTimeEl.textContent = fmtTime(state.demo);
-    }
-    renderAll();
-  }
-  // restore demo bar visibility
-  if (state.demo != null) {
-    demoBar.classList.remove('hidden');
-    demoSlider.value = state.demo;
-    demoTimeEl.textContent = fmtTime(state.demo);
-  }
+  // Clear any persisted demo-time state from older builds.
+  if (state.demo != null) setDemo(null);
 
   // ---------- Now view ----------
   const nowCards = document.getElementById('nowCards');
@@ -371,7 +336,6 @@
   const nowTitle = document.getElementById('nowTitle');
   const nowCount = document.getElementById('nowCount');
   const nextCount = document.getElementById('nextCount');
-  const finaleCard = document.getElementById('finaleCard');
 
   function renderNow() {
     renderHero();
@@ -391,17 +355,6 @@
     nextCards.innerHTML = next.length
       ? next.slice(0, 10).map(actCard).join('')
       : `<div class="empty">Nothing coming up in the next 90 minutes.</div>`;
-
-    if (FESTIVAL.finale) {
-      finaleCard.innerHTML = `
-        <h3>${FESTIVAL.finale.name}</h3>
-        <div class="when">${fmtTimeShort(FESTIVAL.finale.startMinutes)} – ${fmtTimeShort(FESTIVAL.finale.endMinutes)}</div>
-        <div class="where">${FESTIVAL.finale.venue} · ${FESTIVAL.finale.address}</div>
-      `;
-    } else {
-      finaleCard.innerHTML = '';
-      finaleCard.hidden = true;
-    }
 
     // Wire card clicks
     nowCards.querySelectorAll('[data-act]').forEach(el => el.addEventListener('click', e => onActClick(e, el)));
