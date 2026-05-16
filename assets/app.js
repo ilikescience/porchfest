@@ -138,7 +138,12 @@
       },
       err => {
         locBtn.classList.remove('active');
-        alert("Couldn't get your location: " + err.message);
+        if (err.code === err.PERMISSION_DENIED) {
+          locBtn.classList.add('denied');
+          locBtn.title = "Location blocked — enable it in your browser settings to see nearby porches.";
+        } else {
+          locBtn.title = "Couldn't get your location: " + err.message;
+        }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
     );
@@ -165,30 +170,23 @@
   function renderHero() {
     const now = effectiveNow();
     const isLive = now >= FESTIVAL.startMinutes && now < FESTIVAL.endMinutes;
-    const isFinale = now >= FESTIVAL.finale.startMinutes && now < FESTIVAL.finale.endMinutes;
     const today = isFestivalDay() || state.demo != null;
+    const startLabel = fmtTimeShort(FESTIVAL.startMinutes);
+    const endLabel = fmtTimeShort(FESTIVAL.endMinutes);
 
     clockText.textContent = fmtTime(now);
-    liveDot.classList.toggle('off', !isLive && !isFinale);
+    liveDot.classList.toggle('off', !isLive);
 
     if (isLive) {
       heroStatus.textContent = '● Live now';
       heroTitle.textContent = "Porchfest is on";
-      heroSub.textContent = `Music until ${fmtTimeShort(FESTIVAL.endMinutes)} · Finale at Lackawanna`;
-    } else if (isFinale) {
-      heroStatus.textContent = '● Finale';
-      heroTitle.textContent = 'Lackawanna Plaza';
-      heroSub.textContent = `Grammy finale through ${fmtTimeShort(FESTIVAL.finale.endMinutes)}`;
+      heroSub.textContent = `Music until ${endLabel}`;
     } else if (today && now < FESTIVAL.startMinutes) {
       const mins = FESTIVAL.startMinutes - now;
       const h = Math.floor(mins / 60), m = mins % 60;
       heroStatus.textContent = 'Today';
       heroTitle.textContent = 'Tuning up…';
       heroSub.textContent = `Music starts in ${h ? h + 'h ' : ''}${m}m`;
-    } else if (today && now >= FESTIVAL.endMinutes && now < FESTIVAL.finale.startMinutes) {
-      heroStatus.textContent = 'Intermission';
-      heroTitle.textContent = "Head to Lackawanna";
-      heroSub.textContent = `Finale at ${fmtTimeShort(FESTIVAL.finale.startMinutes)}`;
     } else if (today) {
       heroStatus.textContent = "That's a wrap";
       heroTitle.textContent = "See you next year";
@@ -196,7 +194,7 @@
     } else {
       heroStatus.textContent = 'Save the date';
       heroTitle.textContent = FESTIVAL.dateLabel;
-      heroSub.textContent = `Music 12–5 PM · Finale 5–10 PM`;
+      heroSub.textContent = `Music ${startLabel}–${endLabel}`;
     }
     topbarSub.textContent = `Montclair · ${FESTIVAL.dateLabel.replace(/^\w+, /, '')}`;
   }
@@ -259,11 +257,16 @@
       ? next.slice(0, 10).map(actCard).join('')
       : `<div class="empty">Nothing coming up in the next 90 minutes.</div>`;
 
-    finaleCard.innerHTML = `
-      <h3>${FESTIVAL.finale.name}</h3>
-      <div class="when">${fmtTimeShort(FESTIVAL.finale.startMinutes)} – ${fmtTimeShort(FESTIVAL.finale.endMinutes)}</div>
-      <div class="where">${FESTIVAL.finale.venue} · ${FESTIVAL.finale.address}</div>
-    `;
+    if (FESTIVAL.finale) {
+      finaleCard.innerHTML = `
+        <h3>${FESTIVAL.finale.name}</h3>
+        <div class="when">${fmtTimeShort(FESTIVAL.finale.startMinutes)} – ${fmtTimeShort(FESTIVAL.finale.endMinutes)}</div>
+        <div class="where">${FESTIVAL.finale.venue} · ${FESTIVAL.finale.address}</div>
+      `;
+    } else {
+      finaleCard.innerHTML = '';
+      finaleCard.hidden = true;
+    }
 
     // Wire card clicks
     nowCards.querySelectorAll('[data-act]').forEach(el => el.addEventListener('click', e => onActClick(e, el)));
@@ -295,8 +298,7 @@
         ${timeChip}
         <div class="card-artist">${escape(a.artist)}</div>
         <div class="card-meta">
-          <span>${escape(a.genre)}</span>
-          <span class="sep">·</span>
+          ${a.genre ? `<span>${escape(a.genre)}</span><span class="sep">·</span>` : ''}
           <span>${escape(a.porch.address)}</span>
         </div>
         <div class="card-row">
@@ -333,11 +335,18 @@
   searchInput.addEventListener('input', () => { state.query = searchInput.value.trim().toLowerCase(); renderSchedule(); });
 
   function uniqueGenres() {
-    const g = new Set(SCHEDULE.map(a => a.genre));
+    const g = new Set(SCHEDULE.map(a => a.genre).filter(Boolean));
     return ['All', ...[...g].sort()];
   }
   function renderGenres() {
-    genreChips.innerHTML = uniqueGenres().map(g =>
+    const genres = uniqueGenres();
+    if (genres.length <= 1) {
+      genreChips.hidden = true;
+      genreChips.innerHTML = '';
+      return;
+    }
+    genreChips.hidden = false;
+    genreChips.innerHTML = genres.map(g =>
       `<button class="chip ${g === state.genre ? 'active' : ''}" data-genre="${escape(g)}">${escape(g)}</button>`
     ).join('');
     genreChips.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
@@ -391,7 +400,7 @@
         <div class="row-body">
           <div class="row-artist">${escape(a.artist)}</div>
           <div class="row-meta">
-            <span class="tag">${escape(a.genre)}</span>
+            ${a.genre ? `<span class="tag">${escape(a.genre)}</span>` : ''}
             <span>${escape(a.porch.address)}</span>
             ${d != null ? `<span class="sep">·</span><span>${fmtDist(d)}</span>` : `<span class="sep">·</span><span>${escape(a.porch.area)}</span>`}
           </div>
@@ -492,9 +501,9 @@
       `<span class="when">${fmtTime(a.start)} – ${fmtTime(a.end)}</span>`;
     sheetBody.innerHTML = `
       <h3>${escape(a.artist)}</h3>
-      <div class="meta"><strong>${escape(a.genre)}</strong></div>
+      ${a.genre ? `<div class="meta"><strong>${escape(a.genre)}</strong></div>` : ''}
       ${whenChip}
-      <div class="meta">📍 ${escape(a.porch.address)} · ${escape(a.porch.area)}</div>
+      <div class="meta">📍 ${escape(a.porch.address)}${a.porch.area ? ' · ' + escape(a.porch.area) : ''}</div>
       ${d != null ? `<div class="meta">~${fmtDist(d)} · about ${walkMins(d)} min walk</div>` : ``}
       <div class="actions">
         <a class="btn" href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking" target="_blank" rel="noopener">

@@ -1,0 +1,315 @@
+{
+  "1 Clairidge Court": {
+    "lat": 40.8269412,
+    "lng": -74.1984218
+  },
+  "1 Lackawanna Plaza": {
+    "lat": 40.8109991,
+    "lng": -74.2127608
+  },
+  "10 Clairidge Court": {
+    "lat": 40.8271802,
+    "lng": -74.1975358
+  },
+  "10 Marston Place": {
+    "lat": 40.8010071,
+    "lng": -74.2114161
+  },
+  "10 North Mountain Ave": {
+    "lat": 40.8198569,
+    "lng": -74.2240805
+  },
+  "106 Park Street": {
+    "lat": 40.8211408,
+    "lng": -74.2136893
+  },
+  "11 Mountain View Place": {
+    "lat": 40.819486,
+    "lng": -74.2224188
+  },
+  "113 Midland Ave": {
+    "lat": 40.8210365,
+    "lng": -74.2155711
+  },
+  "115 Chestnut St": {
+    "lat": 40.822911,
+    "lng": -74.2145048
+  },
+  "117 Cooper Ave": {
+    "lat": 40.8379361,
+    "lng": -74.1990709
+  },
+  "117 Montclair Ave": {
+    "lat": 40.8238672,
+    "lng": -74.2040304
+  },
+  "118 Bellevue Ave": {
+    "lat": 40.8391425,
+    "lng": -74.1987455
+  },
+  "119 Midland Ave": {
+    "lat": 40.821405,
+    "lng": -74.2152783
+  },
+  "12 Warren Place": {
+    "lat": 40.8048433,
+    "lng": -74.2211694
+  },
+  "127 Heller Way": {
+    "lat": 40.8458449,
+    "lng": -74.1900034
+  },
+  "129 Clarewill Ave": {
+    "lat": 40.8427487,
+    "lng": -74.1981775
+  },
+  "13 Montclair Ave": {
+    "lat": 40.8177473,
+    "lng": -74.2086052
+  },
+  "133 Bellevue Ave": {
+    "lat": 40.8396251,
+    "lng": -74.1999603
+  },
+  "135 High Street": {
+    "lat": 40.7941898,
+    "lng": -74.2239573
+  },
+  "148 Forest Street": {
+    "lat": 40.8202837,
+    "lng": -74.2106158
+  },
+  "157 Orange Road": {
+    "lat": 40.808939,
+    "lng": -74.2210496
+  },
+  "161 Lincoln Street": {
+    "lat": 40.803343,
+    "lng": -74.2175867
+  },
+  "17 Graham Terrace": {
+    "lat": 40.798979,
+    "lng": -74.2279818
+  },
+  "17 William Street": {
+    "lat": 40.8221852,
+    "lng": -74.2183307
+  },
+  "18 Chester Road": {
+    "lat": 40.8331785,
+    "lng": -74.1947091
+  },
+  "182 Valley Road": {
+    "lat": 40.8256002,
+    "lng": -74.2183774
+  },
+  "193 Cooper Ave": {
+    "lat": 40.8395039,
+    "lng": -74.2059498
+  },
+  "48 Tuxedo Road": {
+    "lat": 40.8172342,
+    "lng": -74.2030051
+  },
+  "2 Edgemont Ave": null,
+  "205 Lorraine Ave": {
+    "lat": 40.8421044,
+    "lng": -74.2058121
+  },
+  "22 Berkeley Place": {
+    "lat": 40.8294833,
+    "lng": -74.2162857
+  },
+  "22 Cedar Ave": {
+    "lat": 40.7987068,
+    "lng": -74.2210028
+  },
+  "231 Walnut Street": {
+    "lat": 40.8209712,
+    "lng": -74.2202943
+  },
+  "24 Wellesley Road": {
+    "lat": 40.849641,
+    "lng": -74.20198
+  },
+  "249 North Mountain Ave": {
+    "lat": 40.8350799,
+    "lng": -74.213336
+  },
+  "25 Midland Ave": {
+    "lat": 40.8168559,
+    "lng": -74.2191658
+  },
+  "25 Park Street": {
+    "lat": 40.8157031,
+    "lng": -74.2182945
+  },
+  "257 North Mountain Ave": {
+    "lat": 40.8357162,
+    "lng": -74.2130333
+  },
+  "26 North Willow Street": {
+    "lat": 40.8141368,
+    "lng": -74.2139375
+  },
+  "27 Heller Drive": {
+    "lat": 40.8434964,
+    "lng": -74.1903487
+  },
+  "27 Hillside Ave": {
+    "lat": 40.8154355,
+    "lng": -74.225039
+  },
+  "281 Park Street": {
+    "lat": 40.8328314,
+    "lng": -74.2047949
+  },
+  "30 Riverview Drive": {
+    "lat": 40.8484819,
+    "lng": -74.1874552
+  },
+  "310 North Fullerton Ave": {
+    "lat": 40.8288257,
+    "lng": -74.2055587
+  },
+  "316 Park Street": {
+    "lat": 40.834953,
+    "lng": -74.2039183
+  },
+  "32 Central Ave": {
+    "lat": 40.8220059,
+    "lng": -74.2171323
+  },
+  "323 North Fullerton Ave": {
+    "lat": 40.8297619,
+    "lng": -74.2048009
+  },
+  "34 Ardsley Road": {
+    "lat": 40.81787,
+    "lng": -74.2017278
+  },
+  "35 Midland Ave": {
+    "lat": 40.8172641,
+    "lng": -74.2188877
+  },
+  "35 Park Street": {
+    "lat": 40.8162978,
+    "lng": -74.2176735
+  },
+  "36 Park Street": {
+    "lat": 40.8164778,
+    "lng": -74.2179074
+  },
+  "4 Belvidere Place": {
+    "lat": 40.8246729,
+    "lng": -74.2171489
+  },
+  "41 Erwin Park Rd": {
+    "lat": 40.829738,
+    "lng": -74.2102073
+  },
+  "410 Grove Street": {
+    "lat": 40.833298,
+    "lng": -74.1969104
+  },
+  "428 Washington Ave": {
+    "lat": 40.7967211,
+    "lng": -74.2162074
+  },
+  "43 North Willow Street": {
+    "lat": 40.8147396,
+    "lng": -74.2130446
+  },
+  "46 Park Street": {
+    "lat": 40.8172266,
+    "lng": -74.2171817
+  },
+  "5 Graham Terrace": {
+    "lat": 40.7987637,
+    "lng": -74.2268929
+  },
+  "50 South Fullerton Ave": {
+    "lat": 40.8117174,
+    "lng": -74.2183658
+  },
+  "50 Upper Mountain Ave": {
+    "lat": 40.824279,
+    "lng": -74.222718
+  },
+  "51 Church Street": {
+    "lat": 40.8141789,
+    "lng": -74.2192505
+  },
+  "54 Melrose Place": {
+    "lat": 40.8063597,
+    "lng": -74.2255267
+  },
+  "55 Montclair Ave": {
+    "lat": 40.8198785,
+    "lng": -74.2064302
+  },
+  "56 Watchung Ave": {
+    "lat": 40.8327827,
+    "lng": -74.2108049
+  },
+  "563 Park Street": {
+    "lat": 40.851347,
+    "lng": -74.1961136
+  },
+  "63 Tuxedo Road": {
+    "lat": 40.8175431,
+    "lng": -74.2042767
+  },
+  "66 Christopher Street": {
+    "lat": 40.8188315,
+    "lng": -74.20601
+  },
+  "67 Church Street": {
+    "lat": 40.8151937,
+    "lng": -74.2205712
+  },
+  "7 Belvidere Place": {
+    "lat": 40.8250137,
+    "lng": -74.2171684
+  },
+  "70 Norwood Ave": {
+    "lat": 40.8454009,
+    "lng": -74.2017426
+  },
+  "71 Edgemont Road": {
+    "lat": 40.8340346,
+    "lng": -74.2124614
+  },
+  "72 High Street": {
+    "lat": 40.7990063,
+    "lng": -74.2227754
+  },
+  "72 Norwood Ave": {
+    "lat": 40.8456691,
+    "lng": -74.2015938
+  },
+  "84 Orange Road": {
+    "lat": 40.813117,
+    "lng": -74.2231262
+  },
+  "9 Wellesley Road": {
+    "lat": 40.849576,
+    "lng": -74.2008251
+  },
+  "92 Gordonhurst Ave": {
+    "lat": 40.8320219,
+    "lng": -74.1993899
+  },
+  "94 Wildwood Ave": {
+    "lat": 40.8348959,
+    "lng": -74.1979206
+  },
+  "17 Waterbury Road": {
+    "lat": 40.8310032,
+    "lng": -74.2021073
+  },
+  "2 Edgemont Road": {
+    "lat": 40.8293425,
+    "lng": -74.2153039
+  }
+}
