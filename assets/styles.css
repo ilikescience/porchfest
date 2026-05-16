@@ -335,6 +335,16 @@ input:focus-visible {
 }
 .search input { flex: 1; background: transparent; border: 0; outline: none; color: var(--text); }
 .search input::placeholder { color: var(--muted-2); }
+.search-now {
+  flex: 0 0 auto;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 700;
+}
+.search-now:active { transform: scale(.96); }
 .chips {
   display: flex; gap: 6px; overflow-x: auto;
   margin: 10px -16px -2px; padding: 2px 16px 6px;
@@ -357,6 +367,7 @@ input:focus-visible {
   margin: 14px 4px 2px;
   display: flex; align-items: center; gap: 8px;
 }
+.time-header.current { color: var(--brand-2); }
 .time-header .line { flex: 1; height: 1px; background: var(--line); }
 
 .row {
@@ -492,7 +503,10 @@ input:focus-visible {
   box-shadow: 0 -10px 40px rgba(0,0,0,.4);
   max-height: 78vh; overflow-y: auto;
   animation: slideUp .22s cubic-bezier(.2,.7,.2,1);
+  will-change: transform;
+  touch-action: pan-y;
 }
+.sheet.dragging { transition: none; }
 .sheet-close {
   position: absolute;
   top: 10px;

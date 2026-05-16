@@ -4,7 +4,7 @@
 
   // ---------- State ----------
   const state = {
-    tab: 'now',
+    tab: loadTab(),
     userPos: null,                 // {lat, lng}
     nowMinutes: liveMinutes(),     // minutes since midnight (today)
     demo: loadDemoTime(),          // null | minutes
@@ -76,6 +76,18 @@
     catch { return new Set(); }
   }
   function saveSaved() { localStorage.setItem('porchfest:saved', JSON.stringify([...state.saved])); }
+  function loadTab() {
+    try {
+      const tab = localStorage.getItem('porchfest:tab');
+      return ['now', 'sched', 'map', 'saved'].includes(tab) ? tab : 'now';
+    } catch {
+      return 'now';
+    }
+  }
+  function saveTab() {
+    try { localStorage.setItem('porchfest:tab', state.tab); }
+    catch { /* storage can be unavailable in private modes */ }
+  }
   function loadDemoTime() {
     const v = localStorage.getItem('porchfest:demo');
     return v == null ? null : parseInt(v, 10);
@@ -88,10 +100,19 @@
 
   // ---------- Tab Bar ----------
   document.querySelectorAll('.tab').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+    btn.addEventListener('click', () => {
+      haptic();
+      if (state.tab === btn.dataset.tab) {
+        scrollActiveViewToTop();
+      } else {
+        switchTab(btn.dataset.tab);
+      }
+    });
   });
   function switchTab(name) {
+    closeSheet();
     state.tab = name;
+    saveTab();
     document.querySelectorAll('.tab').forEach(b => {
       const active = b.dataset.tab === name;
       b.classList.toggle('active', active);
@@ -113,6 +134,15 @@
     } else if (name === 'now') {
       renderNow();
     }
+  }
+  function activeView() {
+    return document.querySelector(`.view[data-view="${state.tab}"]`);
+  }
+  function scrollActiveViewToTop() {
+    activeView()?.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function haptic(ms = 8) {
+    if (navigator.vibrate) navigator.vibrate(ms);
   }
 
   // ---------- Geolocation ----------
@@ -437,7 +467,12 @@
   const scheduleList = document.getElementById('scheduleList');
   const searchInput = document.getElementById('searchInput');
   const genreChips = document.getElementById('genreChips');
+  const jumpNowBtn = document.getElementById('jumpNowBtn');
   searchInput.addEventListener('input', () => { state.query = searchInput.value.trim().toLowerCase(); renderSchedule(); });
+  jumpNowBtn.addEventListener('click', () => {
+    haptic();
+    scrollScheduleToCurrent();
+  });
 
   function uniqueGenres() {
     const g = new Set(SCHEDULE.map(a => a.genre).filter(Boolean));
@@ -486,10 +521,17 @@
       return;
     }
     scheduleList.innerHTML = hours.map(h => `
-      <div class="time-header">${hourLabel(h)} <span class="line"></span></div>
+      <div class="time-header ${h <= now && now < h + 60 ? 'current' : ''}" data-hour="${h}">${hourLabel(h)} <span class="line"></span></div>
       ${byHour.get(h).map(a => row(a, now)).join('')}
     `).join('');
     scheduleList.querySelectorAll('.row').forEach(r => r.addEventListener('click', e => onActClick(e, r)));
+  }
+  function scrollScheduleToCurrent() {
+    const current = scheduleList.querySelector('.time-header.current');
+    const next = scheduleList.querySelector('.row:not(.past), .time-header');
+    const target = current || next;
+    if (!target) return;
+    target.scrollIntoView({ block: 'start', behavior: 'smooth' });
   }
 
   function row(a, now) {
@@ -591,9 +633,29 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape') closeSheet();
   });
+  let sheetDragStart = null;
+  sheet.addEventListener('touchstart', e => {
+    if (sheet.scrollTop > 0) return;
+    sheetDragStart = e.touches[0].clientY;
+    sheet.classList.add('dragging');
+  }, { passive: true });
+  sheet.addEventListener('touchmove', e => {
+    if (sheetDragStart == null) return;
+    const dy = Math.max(0, e.touches[0].clientY - sheetDragStart);
+    sheet.style.transform = dy ? `translateY(${dy}px)` : '';
+  }, { passive: true });
+  sheet.addEventListener('touchend', e => {
+    if (sheetDragStart == null) return;
+    const dy = Math.max(0, e.changedTouches[0].clientY - sheetDragStart);
+    sheet.classList.remove('dragging');
+    sheet.style.transform = '';
+    sheetDragStart = null;
+    if (dy > 80) closeSheet();
+  }, { passive: true });
   function openSheet(actId) {
     const a = SCHEDULE.find(x => x.id === actId);
     if (!a) return;
+    haptic();
     const now = effectiveNow();
     const status = statusOf(a, now);
     const d = state.userPos ? dist(state.userPos, a.porch) : null;
@@ -646,6 +708,8 @@
     });
   }
   function closeSheet() {
+    sheetDragStart = null;
+    sheet.style.transform = '';
     sheet.classList.add('hidden');
     sheetBackdrop.classList.add('hidden');
   }
@@ -675,5 +739,6 @@
   }
 
   // ---------- Boot ----------
-  renderAll();
+  if (state.tab === 'now') renderAll();
+  else switchTab(state.tab);
 })();
