@@ -129,6 +129,40 @@
     if (x) x.addEventListener('click', () => { locToast.hidden = true; });
   }
 
+  function getPosition(options) {
+    return new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, options);
+    });
+  }
+
+  function isPermissionDenied(err) {
+    return err?.code === 1; // GeolocationPositionError.PERMISSION_DENIED
+  }
+
+  function updateUserMarker() {
+    if (!state.map || !state.userPos) return;
+    const latLng = [state.userPos.lat, state.userPos.lng];
+    if (!state.userMarker) {
+      state.userMarker = L.marker(latLng, {
+        icon: L.divIcon({ className: '', html: '<div class="user-pin"></div>', iconSize: [16,16], iconAnchor: [8,8] })
+      }).addTo(state.map);
+    } else {
+      state.userMarker.setLatLng(latLng);
+    }
+  }
+
+  function setUserPosition(pos, centerMap = true) {
+    state.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    locBtn.classList.remove('denied');
+    locBtn.classList.add('active');
+    locToast.hidden = true;
+    renderAll();
+    updateUserMarker();
+    if (centerMap && state.map) {
+      state.map.setView([state.userPos.lat, state.userPos.lng], 16);
+    }
+  }
+
   async function requestLocation() {
     if (!navigator.geolocation) {
       showToast("Location isn't available in this browser.");
@@ -139,61 +173,35 @@
       return;
     }
 
-    // Check the current permission so we can give a useful message when
-    // the browser has the site permanently blocked and won't reprompt.
-    let permState = null;
-    if (navigator.permissions?.query) {
-      try {
-        const p = await navigator.permissions.query({ name: 'geolocation' });
-        permState = p.state;
-      } catch { /* not supported — fall through */ }
-    }
-    if (permState === 'denied') {
-      locBtn.classList.remove('active');
-      locBtn.classList.add('denied');
-      showToast(
-        "Location is blocked for this site. Tap the lock or info icon in your browser's address bar, " +
-        "set Location to <strong>Allow</strong>, then reload."
-      );
-      return;
-    }
-
     locBtn.classList.remove('denied');
-    locBtn.classList.add('active');
-    navigator.geolocation.getCurrentPosition(
-      pos => {
-        locToast.hidden = true;
-        state.userPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-        renderAll();
-        if (state.map) {
-          if (!state.userMarker) {
-            state.userMarker = L.marker([state.userPos.lat, state.userPos.lng], {
-              icon: L.divIcon({ className: '', html: '<div class="user-pin"></div>', iconSize: [16,16], iconAnchor: [8,8] })
-            }).addTo(state.map);
-          } else {
-            state.userMarker.setLatLng([state.userPos.lat, state.userPos.lng]);
-          }
-          state.map.setView([state.userPos.lat, state.userPos.lng], 16);
-        }
-      },
-      err => {
-        locBtn.classList.remove('active');
-        if (err.code === err.PERMISSION_DENIED) {
-          locBtn.classList.add('denied');
-          showToast(
-            "Location is blocked for this site. Tap the lock or info icon in your browser's address bar, " +
-            "set Location to <strong>Allow</strong>, then reload."
-          );
-        } else if (err.code === err.POSITION_UNAVAILABLE) {
-          showToast("Your device can't determine its location right now. Try again outside or with Wi-Fi on.");
-        } else if (err.code === err.TIMEOUT) {
-          showToast("Location timed out. Try again from somewhere with a clearer GPS signal.");
-        } else {
-          showToast("Couldn't get your location: " + err.message);
-        }
-      },
-      { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-    );
+    locBtn.setAttribute('aria-busy', 'true');
+    showToast('Finding your location…', false);
+
+    try {
+      const pos = await getPosition({ enableHighAccuracy: true, timeout: 12000, maximumAge: 60000 })
+        .catch(err => {
+          if (isPermissionDenied(err)) throw err;
+          return getPosition({ enableHighAccuracy: false, timeout: 20000, maximumAge: 300000 });
+        });
+      setUserPosition(pos);
+    } catch (err) {
+      locBtn.classList.remove('active');
+      if (isPermissionDenied(err)) {
+        locBtn.classList.add('denied');
+        showToast(
+          "Location is blocked for this site. In Safari, set Location to <strong>Allow</strong> for this site " +
+          "and make sure Safari itself can use Location Services, then try again."
+        );
+      } else if (err.code === 2) {
+        showToast("Your device can't determine its location right now. Try again outside or with Wi-Fi on.");
+      } else if (err.code === 3) {
+        showToast("Location timed out. Try again from somewhere with a clearer GPS signal.");
+      } else {
+        showToast("Couldn't get your location: " + (err.message || 'Unknown location error.'));
+      }
+    } finally {
+      locBtn.removeAttribute('aria-busy');
+    }
   }
   locBtn.addEventListener('click', requestLocation);
 
@@ -495,7 +503,7 @@
       if (state.userPos) {
         map.setView([state.userPos.lat, state.userPos.lng], 16);
       } else {
-        map.setView([FESTIVAL.center.lat, FESTIVAL.center.lng], 14);
+        requestLocation();
       }
     });
   }
@@ -520,11 +528,7 @@
         state.markers.set(porch.id, m);
       }
     }
-    if (state.userPos && !state.userMarker) {
-      state.userMarker = L.marker([state.userPos.lat, state.userPos.lng], {
-        icon: L.divIcon({ className: '', html: '<div class="user-pin"></div>', iconSize: [16,16], iconAnchor: [8,8] })
-      }).addTo(state.map);
-    }
+    updateUserMarker();
   }
 
   // ---------- Bottom sheet ----------
